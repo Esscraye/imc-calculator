@@ -10,7 +10,7 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user }) {
       // Créer l'utilisateur dans la base de données s'il n'existe pas déjà
       await sql`
         INSERT INTO users (id, name, email)

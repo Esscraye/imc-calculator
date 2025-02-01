@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { HistoryView } from "@/components/HistoryView"
 import { toast } from "@/hooks/use-toast"
@@ -14,7 +14,7 @@ export default function IMCCalculator() {
   const [weight, setWeight] = useState(70)
   const [imc, setIMC] = useState<number | null>(null)
   const [history, setHistory] = useState([])
-  const { data: session, status } = useSession()
+  const { data: session } = useSession()
 
   useEffect(() => {
     if (session) {
@@ -34,7 +34,7 @@ export default function IMCCalculator() {
           title: "IMC enregistré",
           description: "Votre IMC a été sauvegardé avec succès.",
         })
-      } catch (error) {
+      } catch {
         toast({
           title: "Erreur",
           description: "Impossible de sauvegarder l'IMC.",
