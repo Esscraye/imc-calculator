@@ -27,7 +27,7 @@ export async function GET() {
     return NextResponse.json({ message: "Tables created successfully" }, { status: 200 })
   } catch (error) {
     console.error("Error creating tables:", error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
-

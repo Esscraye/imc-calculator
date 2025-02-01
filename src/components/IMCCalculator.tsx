@@ -1,12 +1,13 @@
-"use client"
+'use client'
 
 import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
+import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { HistoryView } from "@/components/HistoryView"
+import { HistoryView } from "./HistoryView"
 import { toast } from "@/hooks/use-toast"
 
 export default function IMCCalculator() {
@@ -74,6 +75,14 @@ export default function IMCCalculator() {
     }
   }
 
+  const handleHeightChange = (value: number) => {
+    setHeight(Math.min(Math.max(value, 100), 250))
+  }
+
+  const handleWeightChange = (value: number) => {
+    setWeight(Math.min(Math.max(value, 30), 200))
+  }
+
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
@@ -86,31 +95,44 @@ export default function IMCCalculator() {
         </TabsList>
         <TabsContent value="calculator">
           <CardContent>
-            <div className="flex space-x-4">
-              <div className="w-1/2 flex flex-col items-center">
+            <div className="space-y-6">
+              <div>
                 <label className="block text-sm font-medium mb-2">Taille: {height} cm</label>
-                <div className="h-64 flex items-center">
+                <div className="flex items-center space-x-4">
                   <Slider
                     value={[height]}
-                    onValueChange={(value) => setHeight(value[0])}
+                    onValueChange={(value) => handleHeightChange(value[0])}
                     min={100}
                     max={250}
                     step={1}
-                    orientation="vertical"
-                    className="h-full"
+                    className="flex-grow"
+                  />
+                  <Input
+                    type="number"
+                    value={height}
+                    onChange={(e) => handleHeightChange(Number(e.target.value))}
+                    className="w-20"
                   />
                 </div>
               </div>
-              <div className="w-1/2">
+              <div>
                 <label className="block text-sm font-medium mb-2">Poids: {weight} kg</label>
-                <Slider
-                  value={[weight]}
-                  onValueChange={(value) => setWeight(value[0])}
-                  min={30}
-                  max={200}
-                  step={1}
-                  className="mt-16"
-                />
+                <div className="flex items-center space-x-4">
+                  <Slider
+                    value={[weight]}
+                    onValueChange={(value) => handleWeightChange(value[0])}
+                    min={30}
+                    max={200}
+                    step={1}
+                    className="flex-grow"
+                  />
+                  <Input
+                    type="number"
+                    value={weight}
+                    onChange={(e) => handleWeightChange(Number(e.target.value))}
+                    className="w-20"
+                  />
+                </div>
               </div>
             </div>
             <Button onClick={calculateIMC} className="w-full mt-8">
@@ -118,7 +140,7 @@ export default function IMCCalculator() {
             </Button>
             {imc !== null && (
               <div className="text-center mt-4">
-                <p className="text-lg font-semibold">Votre IMC est : {imc}</p>
+                <p className="text-lg font-semibold">Votre IMC est : {imc.toFixed(2)}</p>
                 <p className="text-sm mt-2">
                   {imc < 18.5 && "Insuffisance pondérale"}
                   {imc >= 18.5 && imc < 25 && "Corpulence normale"}

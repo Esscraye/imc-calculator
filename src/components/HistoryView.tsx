@@ -33,7 +33,7 @@ export function HistoryView({ history }: HistoryViewProps) {
                 <TableCell>{new Date(record.created_at).toLocaleDateString()}</TableCell>
                 <TableCell>{record.height}</TableCell>
                 <TableCell>{record.weight}</TableCell>
-                <TableCell>{record.imc}</TableCell>
+                <TableCell>{record.imc.toFixed(2)}</TableCell>
                 <TableCell>
                   {record.imc < 18.5 && "Insuffisance pondérale"}
                   {record.imc >= 18.5 && record.imc < 25 && "Corpulence normale"}

@@ -1,32 +1,33 @@
-"use client"
-
-import { useSession } from "next-auth/react"
+import { signIn, signOut, auth } from "@/auth"
 import { Button } from "@/components/ui/button"
 import type { ReactNode } from "react"
-import Link from "next/link"
 
-export default function AuthWrapper({ children }: { children: ReactNode }) {
-  const { data: session, status } = useSession()
+export default async function AuthWrapper({ children }: { children: ReactNode }) {
+  const session = await auth()
 
-  if (status === "loading") {
-    return <div>Chargement...</div>
-  }
-
-  if (status === "unauthenticated") {
+  if (!session) {
     return (
-      <Button asChild>
-        <Link href="/api/auth/signin">Se connecter</Link>
-      </Button>
+      <form
+      action={async () => {
+        "use server"
+        await signIn("github")
+      }}>
+        <Button className="mt-4" type="submit">Se connecter avec GitHub</Button>
+      </form>
     )
   }
 
   return (
     <>
-      <p className="mb-4">Connecté en tant que {session?.user?.name}</p>
+      <p className="mb-4">Connecté en tant que {session.user?.name}</p>
       {children}
-      <Button className="mt-4" asChild>
-        <Link href="/api/auth/signout">Se déconnecter</Link>
-      </Button>
+      <form
+      action={async () => {
+        "use server"
+        await signOut()
+      }}>
+        <Button className="mt-4" type="submit">Se déconnecter</Button>
+      </form>
     </>
   )
 }

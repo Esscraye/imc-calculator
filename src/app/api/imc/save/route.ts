@@ -1,25 +1,24 @@
 import { sql } from "@vercel/postgres"
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { auth } from "@/auth"
 import { NextResponse } from "next/server"
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions)
-  if (!session?.user?.email) {
+  const session = await auth()
+  if (!session) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
   }
 
   try {
     // D'abord, récupérer l'ID de l'utilisateur à partir de son email
     const userResult = await sql`
-      SELECT id FROM users WHERE email = ${session.user.email}
+      SELECT id FROM users WHERE email = ${session.user?.email}
     `
 
     if (userResult.rows.length === 0) {
       // Si l'utilisateur n'existe pas, le créer
       const newUserResult = await sql`
         INSERT INTO users (email, name)
-        VALUES (${session.user.email}, ${session.user.name})
+        VALUES (${session.user?.email}, ${session.user?.name})
         RETURNING id
       `
       userResult.rows = newUserResult.rows
@@ -37,7 +36,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "IMC saved successfully" }, { status: 200 })
   } catch (error) {
     console.error("Error saving IMC:", error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
 

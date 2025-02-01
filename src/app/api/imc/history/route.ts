@@ -1,11 +1,10 @@
 import { sql } from "@vercel/postgres"
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { NextResponse } from "next/server"
+import { auth } from "@/auth"
 
 export async function GET() {
-  const session = await getServerSession(authOptions)
-  if (!session?.user?.email) {
+  const session = await auth()
+  if (!session) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
   }
 
@@ -15,14 +14,15 @@ export async function GET() {
       SELECT r.height, r.weight, r.imc, r.created_at
       FROM imc_records r
       JOIN users u ON r.user_id = u.id
-      WHERE u.email = ${session.user.email}
+      WHERE u.email = ${session.user?.email}
       ORDER BY r.created_at DESC
     `
 
     return NextResponse.json(rows, { status: 200 })
   } catch (error) {
     console.error("Error fetching history:", error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
 
